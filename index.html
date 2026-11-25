@@ -1,17 +1,1786 @@
-#include <iostream>
-using namespace std;
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFlow - Nền tảng Học tập Trực tuyến Thông minh</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-int main() {
-    cout << "====================================" << endl;
-    cout << "       THU VIEN SO CA NHAN" << endl;
-    cout << "====================================" << endl;
-    cout << "Chao mung ban den voi thu vien so!" << endl;
-    cout << "1. Tai lieu hoc tap" << endl;
-    cout << "2. Sach dien tu" << endl;
-    cout << "3. Trang web tham khao" << endl;
-    cout << "====================================" << endl;
-    cout << "Thuc hien boi: Vo Hoang Gia Bao" << endl;
-    cout << "Ma sinh vien: PK04985" << endl;
+    <style>
+        /* Custom Scrollbar & 3D Flip Utilities for Flashcards */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
 
-    return 0;
-}
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Smooth transitions */
+        .fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200 selection:bg-primary-500 selection:text-white">
+
+    <!-- Toast Notification Container (Thay thế cho alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Main Layout Wrapper -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Mobile Top Header -->
+        <header class="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-2.5">
+                <button id="mobile-menu-btn" class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-2 font-bold text-lg text-primary-600 dark:text-primary-400">
+                    <div class="w-8 h-8 rounded-xl bg-primary-600 text-white flex items-center justify-center shadow-sm">
+                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                    </div>
+                    <span>EduFlow</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                    <i data-lucide="flame" class="w-3.5 h-3.5 fill-current"></i>
+                    <span id="mobile-streak">7</span>
+                </span>
+                <button onclick="toggleTheme()" class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" title="Đổi giao diện Sáng/Tối">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar Backdrop for Mobile -->
+        <div id="sidebar-backdrop" onclick="closeMobileMenu()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0">
+            <div class="p-5 overflow-y-auto">
+                <!-- Brand Logo -->
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-primary-500/20">
+                            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">EduFlow</h1>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Học thông minh mỗi ngày</p>
+                        </div>
+                    </div>
+                    <button onclick="closeMobileMenu()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="space-y-1.5 mb-8">
+                    <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Không gian học</p>
+                    
+                    <button onclick="switchTab('dashboard')" data-nav="dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Tổng quan (Dashboard)</span>
+                    </button>
+
+                    <button onclick="switchTab('courses')" data-nav="courses" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                        <span>Khóa học & Bài giảng</span>
+                    </button>
+
+                    <button onclick="switchTab('flashcards')" data-nav="flashcards" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                        <span>Thẻ ghi nhớ (Flashcards)</span>
+                    </button>
+
+                    <button onclick="switchTab('quiz')" data-nav="quiz" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        <span>Luyện tập Trắc nghiệm</span>
+                    </button>
+                </nav>
+
+                <!-- Integrated Pomodoro Timer Widget -->
+                <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                            <i data-lucide="timer" class="w-4 h-4 text-rose-500"></i>
+                            <span>Pomodoro Tập Trung</span>
+                        </div>
+                        <span id="pomo-mode-badge" class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">
+                            Học bài
+                        </span>
+                    </div>
+
+                    <div class="text-center my-3">
+                        <div id="pomo-display" class="text-3xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">
+                            25:00
+                        </div>
+                        <p id="pomo-status-text" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Sẵn sàng phiên tập trung 25p</p>
+                    </div>
+
+                    <!-- Mode Switchers -->
+                    <div class="grid grid-cols-2 gap-1.5 mb-3 bg-slate-200/60 dark:bg-slate-900/60 p-1 rounded-xl">
+                        <button id="pomo-btn-focus" onclick="setPomodoroMode('focus')" class="py-1 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition">
+                            25p Học
+                        </button>
+                        <button id="pomo-btn-break" onclick="setPomodoroMode('break')" class="py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                            5p Nghỉ
+                        </button>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex items-center gap-2">
+                        <button id="pomo-toggle-btn" onclick="togglePomodoro()" class="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition">
+                            <i id="pomo-toggle-icon" data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                            <span id="pomo-toggle-text">Bắt đầu</span>
+                        </button>
+                        <button onclick="resetPomodoro()" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Đặt lại đồng hồ">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer: Theme & User Profile -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 text-white font-bold text-sm flex items-center justify-center">
+                        HV
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">Học viên Tích cực</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" id="sidebar-xp">1,250 XP • Cấp 4</p>
+                    </div>
+                </div>
+                <button onclick="toggleTheme()" class="hidden lg:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Chuyển chế độ Sáng/Tối">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            
+            <!-- ==================== TAB 1: DASHBOARD ==================== -->
+            <section id="view-dashboard" class="view-section fade-in space-y-6">
+                <!-- Welcome Banner -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary-600 via-indigo-600 to-violet-600 text-white p-6 sm:p-8 shadow-lg shadow-primary-600/15">
+                    <div class="relative z-10 max-w-2xl">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/15 backdrop-blur-xs mb-3">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            Chào mừng bạn quay trở lại!
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Hôm nay bạn muốn chinh phục kiến thức gì?</h2>
+                        <p class="text-indigo-100 text-sm sm:text-base mb-5">Duy trì thói quen học tập 25 phút mỗi ngày với Pomodoro để đạt hiệu quả ghi nhớ tối đa.</p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="continueLastLesson()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-primary-700 font-semibold text-sm hover:bg-indigo-50 transition shadow-sm">
+                                <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                Tiếp tục bài học gần nhất
+                            </button>
+                            <button onclick="switchTab('flashcards')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-medium text-sm backdrop-blur-xs transition">
+                                <i data-lucide="layers" class="w-4 h-4"></i>
+                                Ôn thẻ Flashcards
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Decorative Circles -->
+                    <div class="absolute -right-12 -bottom-16 w-64 h-64 rounded-full bg-white/10 pointer-events-none"></div>
+                    <div class="absolute right-24 -top-12 w-36 h-36 rounded-full bg-white/10 pointer-events-none"></div>
+                </div>
+
+                <!-- Key Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Streak Card -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="flame" class="w-6 h-6 fill-current"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Chuỗi ngày liên tiếp</p>
+                            <div class="flex items-baseline gap-1.5">
+                                <h3 id="stat-streak" class="text-2xl font-bold text-slate-900 dark:text-white">7 ngày</h3>
+                                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">+1 hôm nay</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Lessons -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Bài học hoàn thành</p>
+                            <div class="flex items-baseline gap-1.5">
+                                <h3 id="stat-completed" class="text-2xl font-bold text-slate-900 dark:text-white">0 / 12</h3>
+                                <span id="stat-percent" class="text-xs font-medium text-slate-500">(0%)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pomodoro Sessions -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Phiên tập trung</p>
+                            <div class="flex items-baseline gap-1.5">
+                                <h3 id="stat-pomodoros" class="text-2xl font-bold text-slate-900 dark:text-white">4 phiên</h3>
+                                <span class="text-xs font-medium text-slate-500">(100 phút)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Average -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Điểm trắc nghiệm TB</p>
+                            <div class="flex items-baseline gap-1.5">
+                                <h3 id="stat-quiz-score" class="text-2xl font-bold text-slate-900 dark:text-white">88%</h3>
+                                <span class="text-xs font-medium text-primary-600 dark:text-primary-400">Xuất sắc</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Activity & Active Courses -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Active Courses Progress (2 cols) -->
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Khóa học đang theo dõi</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Nhấp vào khóa học để tiếp tục đọc tài liệu và làm bài tập</p>
+                            </div>
+                            <button onclick="switchTab('courses')" class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+                                Xem tất cả →
+                            </button>
+                        </div>
+                        <div id="dashboard-course-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Weekly Streak Tracker (1 col) -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Lịch sử chuyên cần</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Mục tiêu: Hoàn thành ít nhất 1 bài hoặc 1 Pomodoro/ngày</p>
+                            
+                            <!-- 7 Days Visual -->
+                            <div class="grid grid-cols-7 gap-1.5 text-center mb-6">
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T2</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T3</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T4</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T5</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T6</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-medium text-slate-400">T7</span>
+                                    <div class="h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs"><i data-lucide="check" class="w-4 h-4"></i></div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <span class="text-[11px] font-bold text-primary-600 dark:text-primary-400">CN</span>
+                                    <div class="h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center ring-2 ring-amber-300 dark:ring-amber-700"><i data-lucide="flame" class="w-4 h-4 fill-current"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs mb-1.5">
+                                <span class="font-semibold text-slate-700 dark:text-slate-200">Mục tiêu tuần này</span>
+                                <span class="font-bold text-primary-600 dark:text-primary-400">85%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-primary-600 rounded-full" style="width: 85%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2">Tuyệt vời! Bạn chỉ cần hoàn thành thêm 1 bài học để đạt huy hiệu Chăm chỉ tuần.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB 2: COURSES & LESSON VIEWER ==================== -->
+            <section id="view-courses" class="view-section hidden fade-in space-y-6">
+                <!-- Course Catalog View -->
+                <div id="courses-catalog-view" class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Danh sách Khóa học</h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Chọn một lộ trình bên dưới để xem tài liệu lý thuyết, ví dụ và ghi chú cá nhân</p>
+                        </div>
+                        <!-- Category Filter -->
+                        <div class="flex flex-wrap gap-2" id="course-filters">
+                            <button onclick="filterCourses('all')" data-filter="all" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-primary-600 text-white transition">Tất cả</button>
+                            <button onclick="filterCourses('tech')" data-filter="tech" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition">Lập trình</button>
+                            <button onclick="filterCourses('language')" data-filter="language" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition">Ngoại ngữ</button>
+                            <button onclick="filterCourses('logic')" data-filter="logic" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition">Tư duy & Toán</button>
+                        </div>
+                    </div>
+
+                    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Detailed Lesson Study Room View (Hidden until a course/lesson is selected) -->
+                <div id="lesson-reader-view" class="hidden space-y-5">
+                    <!-- Top Breadcrumb & Back Button -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <button onclick="closeLessonReader()" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            Quay lại danh sách khóa học
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <span id="reader-course-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300">
+                                Khóa học
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Left Column: Syllabus / Lesson List (4 cols) -->
+                        <div class="lg:col-span-4 space-y-4">
+                            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+                                <h3 id="reader-course-title" class="font-bold text-lg text-slate-900 dark:text-white mb-1">Tên khóa học</h3>
+                                <p id="reader-course-desc" class="text-xs text-slate-500 dark:text-slate-400 mb-4">Mô tả khóa học</p>
+                                
+                                <!-- Progress Bar -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-xs font-medium mb-1">
+                                        <span class="text-slate-500 dark:text-slate-400">Tiến độ khóa học</span>
+                                        <span id="reader-course-progress-text" class="text-primary-600 dark:text-primary-400 font-bold">0%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div id="reader-course-progress-bar" class="h-full bg-primary-600 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <div id="reader-lesson-list" class="space-y-2">
+                                    <!-- Lesson items rendered by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Personal Notes Box (Saved to localStorage) -->
+                            <div class="bg-amber-50/70 dark:bg-slate-900 rounded-2xl p-5 border border-amber-200/80 dark:border-slate-800">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div class="flex items-center gap-2 font-bold text-sm text-amber-900 dark:text-amber-300">
+                                        <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+                                        <span>Ghi chú cá nhân cho bài này</span>
+                                    </div>
+                                    <span id="note-save-status" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium opacity-0 transition-opacity">Đã lưu tự động</span>
+                                </div>
+                                <textarea id="lesson-note-input" rows="5" placeholder="Viết tóm tắt ý chính, công thức hoặc câu hỏi của bạn tại đây... (Tự động lưu vào trình duyệt)" class="w-full rounded-xl bg-white dark:bg-slate-800 border border-amber-200 dark:border-slate-700 p-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y"></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button onclick="saveCurrentNote(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition">
+                                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                                        Lưu ghi chú
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Lesson Reading Content, Examples & Quick Quiz CTA (8 cols) -->
+                        <div class="lg:col-span-8 space-y-6">
+                            <article class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs">
+                                <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-slate-100 dark:border-slate-800">
+                                    <div>
+                                        <span id="lesson-duration-badge" class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                                            <i data-lucide="clock" class="w-3.5 h-3.5"></i> 15 phút đọc
+                                        </span>
+                                        <h2 id="lesson-title" class="text-2xl font-bold text-slate-900 dark:text-white">Tiêu đề bài học</h2>
+                                    </div>
+                                    <button id="mark-complete-btn" onclick="toggleLessonComplete()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                                        <!-- Updated by JS -->
+                                    </button>
+                                </div>
+
+                                <!-- Theory Content -->
+                                <div id="lesson-theory-content" class="prose prose-slate dark:prose-invert max-w-none space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
+                                    <!-- Dynamic HTML Content -->
+                                </div>
+
+                                <!-- Practical Example Box -->
+                                <div class="mt-8 rounded-2xl bg-slate-900 text-slate-100 p-5 overflow-hidden border border-slate-800">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                                            <i data-lucide="code-2" class="w-4 h-4"></i>
+                                            Ví dụ minh họa thực tế
+                                        </span>
+                                        <button onclick="copyExampleCode()" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">
+                                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                            Sao chép
+                                        </button>
+                                    </div>
+                                    <pre id="lesson-example-box" class="text-xs sm:text-sm font-mono overflow-x-auto text-indigo-200 leading-relaxed whitespace-pre-wrap"></pre>
+                                </div>
+
+                                <!-- Bottom Navigation & Quiz Prompt -->
+                                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                                        <button id="prev-lesson-btn" onclick="navigateLesson(-1)" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition">
+                                            <i data-lucide="chevron-left" class="w-4 h-4"></i> Bài trước
+                                        </button>
+                                        <button id="next-lesson-btn" onclick="navigateLesson(1)" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition">
+                                            Bài tiếp <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+
+                                    <button onclick="startLessonQuiz()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition">
+                                        <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                        Làm bài Trắc nghiệm kiểm tra kiến thức
+                                    </button>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB 3: FLASHCARDS ==================== -->
+            <section id="view-flashcards" class="view-section hidden fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Thẻ ghi nhớ (Flashcards)</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Nhấp vào thẻ để lật xem giải nghĩa. Đánh dấu "Đã thuộc" để theo dõi mức độ ghi nhớ.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="flashcard-deck-select" class="text-xs font-medium text-slate-500 dark:text-slate-400">Chủ đề:</label>
+                        <select id="flashcard-deck-select" onchange="changeFlashcardDeck()" class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Flashcard Interactive Stage -->
+                <div class="max-w-2xl mx-auto space-y-6 pt-2">
+                    <!-- Progress indicator -->
+                    <div class="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <span id="fc-counter">Thẻ 1 / 5</span>
+                        <span id="fc-mastered-count" class="text-emerald-600 dark:text-emerald-400 font-semibold">Đã thuộc: 0 thẻ</span>
+                    </div>
+
+                    <!-- 3D Flip Card -->
+                    <div onclick="flipFlashcard()" class="perspective-1000 w-full h-72 sm:h-80 cursor-pointer select-none group">
+                        <div id="flashcard-inner" class="relative w-full h-full transition-transform duration-500 transform-style-3d">
+                            <!-- Front Side -->
+                            <div class="absolute inset-0 backface-hidden rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 group-hover:border-primary-400 dark:group-hover:border-primary-600 shadow-md p-8 flex flex-col items-center justify-center text-center transition-colors">
+                                <span id="fc-tag" class="px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300 mb-4">
+                                    Thuật ngữ
+                                </span>
+                                <h3 id="fc-front-text" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug">
+                                    Semantic HTML
+                                </h3>
+                                <p class="mt-6 text-xs text-slate-400 flex items-center gap-1.5">
+                                    <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Nhấp vào thẻ để lật mặt sau
+                                </p>
+                            </div>
+
+                            <!-- Back Side -->
+                            <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-3xl bg-gradient-to-br from-primary-600 to-indigo-700 text-white shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/20 mb-4">
+                                    Giải thích & Ví dụ
+                                </span>
+                                <p id="fc-back-text" class="text-base sm:text-lg font-medium leading-relaxed">
+                                    Các thẻ HTML mang ý nghĩa mô tả rõ ràng cấu trúc nội dung cho cả trình duyệt và lập trình viên (ví dụ: &lt;header&gt;, &lt;article&gt;, &lt;nav&gt;).
+                                </p>
+                                <p class="mt-6 text-xs text-indigo-200 flex items-center gap-1.5">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Nhấp để quay lại mặt trước
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard Controls -->
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <button onclick="prevFlashcard()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Thẻ trước
+                        </button>
+
+                        <button id="fc-master-btn" onclick="toggleMasterFlashcard()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 text-sm font-semibold hover:bg-emerald-100 transition">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Đánh dấu đã thuộc</span>
+                        </button>
+
+                        <button onclick="nextFlashcard()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold shadow-sm transition">
+                            Thẻ tiếp <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB 4: INTERACTIVE QUIZ ==================== -->
+            <section id="view-quiz" class="view-section hidden fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Hệ thống Trắc nghiệm Tương tác</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Kiểm tra mức độ hiểu bài với chấm điểm tự động và giải thích chi tiết từng câu hỏi.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="quiz-topic-select" class="text-xs font-medium text-slate-500 dark:text-slate-400">Bộ đề:</label>
+                        <select id="quiz-topic-select" onchange="loadSelectedQuiz()" class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quiz Card Container -->
+                <div class="max-w-3xl mx-auto">
+                    <div id="quiz-active-box" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs space-y-6">
+                        <!-- Top Quiz Progress -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between text-xs font-semibold">
+                                <span id="quiz-question-counter" class="text-primary-600 dark:text-primary-400">Câu hỏi 1 / 4</span>
+                                <span id="quiz-live-score" class="text-slate-500 dark:text-slate-400">Điểm hiện tại: 0</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div id="quiz-progress-bar" class="h-full bg-primary-600 transition-all duration-300" style="width: 25%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div>
+                            <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                                Câu hỏi sẽ hiển thị tại đây...
+                            </h3>
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div id="quiz-options-list" class="space-y-3">
+                            <!-- Options rendered by JS -->
+                        </div>
+
+                        <!-- Explanation Callout (Shown after answering) -->
+                        <div id="quiz-explanation-box" class="hidden rounded-2xl p-4 text-sm border">
+                            <div class="flex items-start gap-2.5">
+                                <i id="quiz-exp-icon" data-lucide="info" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p id="quiz-exp-title" class="font-bold mb-1">Giải thích đáp án</p>
+                                    <p id="quiz-exp-text" class="opacity-90 leading-relaxed"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Next Question Action -->
+                        <div class="flex justify-end pt-2">
+                            <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold shadow-sm transition">
+                                <span>Câu tiếp theo</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Result Summary Screen (Hidden until finished) -->
+                    <div id="quiz-result-box" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-xs text-center space-y-5">
+                        <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center mx-auto">
+                            <i data-lucide="trophy" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Hoàn thành bài kiểm tra!</h3>
+                            <p id="quiz-result-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bạn đã hoàn thành xuất sắc bộ câu hỏi ôn tập.</p>
+                        </div>
+                        <div class="inline-flex items-center gap-6 px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700">
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Số câu đúng</p>
+                                <p id="quiz-final-fraction" class="text-2xl font-extrabold text-primary-600 dark:text-primary-400">3 / 4</p>
+                            </div>
+                            <div class="w-px h-10 bg-slate-200 dark:bg-slate-700"></div>
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Tỷ lệ chính xác</p>
+                                <p id="quiz-final-percent" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">75%</p>
+                            </div>
+                        </div>
+                        <div class="pt-2 flex flex-wrap justify-center gap-3">
+                            <button onclick="loadSelectedQuiz()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold transition">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Làm lại bài này
+                            </button>
+                            <button onclick="switchTab('courses')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                                Quay lại bài học
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // 1. DỮ LIỆU KHÓA HỌC, BÀI HỌC, FLASHCARDS & TRẮC NGHIỆM
+        const COURSES_DATA = [
+            {
+                id: 'web-dev',
+                title: 'Lập trình Web cơ bản (HTML, CSS & JS)',
+                category: 'tech',
+                categoryLabel: 'Lập trình',
+                level: 'Người mới bắt đầu',
+                color: 'from-blue-500 to-indigo-600',
+                icon: 'globe',
+                description: 'Nắm vững cấu trúc trang web hiện đại với HTML5 ngữ nghĩa, Flexbox/Grid trong CSS3 và tư duy tương tác JavaScript.',
+                lessons: [
+                    {
+                        id: 'web-1',
+                        title: 'Bài 1: Cấu trúc HTML5 & Thẻ ngữ nghĩa (Semantic)',
+                        duration: '12 phút',
+                        theory: `
+                            <p><strong>HTML5</strong> không chỉ dùng để hiển thị văn bản mà còn giúp trình duyệt và công cụ tìm kiếm (SEO) hiểu rõ vai trò từng khu vực trên trang web thông qua các <em>thẻ ngữ nghĩa (Semantic Tags)</em>.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><code>&lt;header&gt;</code>: Chứa phần đầu trang, logo hoặc thanh điều hướng chính.</li>
+                                <li><code>&lt;nav&gt;</code>: Xác định khối liên kết điều hướng (Menu).</li>
+                                <li><code>&lt;main&gt;</code>: Nội dung trọng tâm, duy nhất của trang web.</li>
+                                <li><code>&lt;article&gt;</code> & <code>&lt;section&gt;</code>: Phân chia các bài viết độc lập hoặc từng chương mục rõ ràng.</li>
+                            </ul>
+                            <p>Sử dụng đúng thẻ ngữ nghĩa giúp mã nguồn sạch sẽ, dễ bảo trì và hỗ trợ tốt cho người dùng trình đọc màn hình.</p>
+                        `,
+                        example: `<!DOCTYPE html>
+<html lang="vi">
+<body>
+  <header>
+    <h1>Blog Công Nghệ</h1>
+    <nav><a href="#home">Trang chủ</a> | <a href="#posts">Bài viết</a></nav>
+  </header>
+  <main>
+    <article>
+      <h2>Tại sao nên dùng Semantic HTML?</h2>
+      <p>Giúp tối ưu SEO và cấu trúc mã nguồn rõ ràng hơn.</p>
+    </article>
+  </main>
+</body>
+</html>`
+                    },
+                    {
+                        id: 'web-2',
+                        title: 'Bài 2: Bố cục linh hoạt với CSS Flexbox',
+                        duration: '15 phút',
+                        theory: `
+                            <p><strong>CSS Flexbox</strong> (Flexible Box Layout) là mô hình bố cục một chiều giúp sắp xếp, căn chỉnh và phân phối khoảng trống giữa các phần tử trong một container một cách dễ dàng, ngay cả khi kích thước của chúng thay đổi.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><code>display: flex;</code>: Kích hoạt chế độ Flexbox cho phần tử cha.</li>
+                                <li><code>justify-content</code>: Căn chỉnh các phần tử con theo trục chính (thường là chiều ngang: <code>center</code>, <code>space-between</code>).</li>
+                                <li><code>align-items</code>: Căn chỉnh theo trục phụ (chiều dọc: <code>center</code>, <code>stretch</code>).</li>
+                                <li><code>gap</code>: Tạo khoảng cách đều giữa các phần tử mà không cần dùng margin rườm rà.</li>
+                            </ul>
+                        `,
+                        example: `.navbar {
+  display: flex;
+  justify-content: space-between; /* Đẩy logo sang trái, menu sang phải */
+  align-items: center;            /* Căn giữa theo chiều dọc */
+  gap: 16px;
+  padding: 12px 24px;
+}`
+                    },
+                    {
+                        id: 'web-3',
+                        title: 'Bài 3: Thao tác DOM & Sự kiện trong JavaScript',
+                        duration: '18 phút',
+                        theory: `
+                            <p><strong>DOM (Document Object Model)</strong> là mô hình cây biểu diễn toàn bộ tài liệu HTML. JavaScript sử dụng DOM để thay đổi nội dung, kiểu dáng và phản hồi tương tác của người dùng theo thời gian thực.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><code>document.querySelector()</code>: Chọn phần tử HTML đầu tiên khớp với bộ chọn CSS.</li>
+                                <li><code>addEventListener('click', fn)</code>: Lắng nghe sự kiện nhấp chuột mà không ghi đè các sự kiện khác.</li>
+                                <li><code>classList.toggle()</code>: Bật/tắt một class CSS linh hoạt (rất hữu ích cho Dark Mode hoặc Menu).</li>
+                            </ul>
+                        `,
+                        example: `const btn = document.querySelector('#toggle-btn');
+const box = document.querySelector('#info-box');
+
+btn.addEventListener('click', () => {
+  box.classList.toggle('hidden');
+  btn.textContent = box.classList.contains('hidden') ? 'Hiện thông tin' : 'Ẩn thông tin';
+});`
+                    }
+                ]
+            },
+            {
+                id: 'python-basic',
+                title: 'Python cho người mới bắt đầu',
+                category: 'tech',
+                categoryLabel: 'Lập trình',
+                level: 'Cơ bản',
+                color: 'from-emerald-500 to-teal-600',
+                icon: 'terminal',
+                description: 'Học ngôn ngữ lập trình phổ biến nhất thế giới với cú pháp tinh gọn, xử lý danh sách và tư duy giải thuật.',
+                lessons: [
+                    {
+                        id: 'py-1',
+                        title: 'Bài 1: Biến, Kiểu dữ liệu & f-string',
+                        duration: '10 phút',
+                        theory: `
+                            <p><strong>Python</strong> nổi tiếng với cú pháp gần gũi với ngôn ngữ tự nhiên. Bạn không cần khai báo kiểu dữ liệu tường minh khi tạo biến; Python tự động nhận diện kiểu dữ liệu dựa trên giá trị gán.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li>Các kiểu cơ bản: <code>int</code> (số nguyên), <code>float</code> (số thực), <code>str</code> (chuỗi ký tự), <code>bool</code> (True/False).</li>
+                                <li><strong>f-string</strong> (Formatted String Literals): Cách định dạng chuỗi nhanh và sạch nhất bằng cách đặt chữ <code>f</code> trước dấu ngoặc kép và nhúng biến trong <code>{}</code>.</li>
+                            </ul>
+                        `,
+                        example: `ten_hoc_vien = "Minh Anh"
+so_bai_hoc = 12
+diem_tb = 9.25
+
+print(f"Học viên {ten_hoc_vien} đã học {so_bai_hoc} bài với điểm TB: {diem_tb:.1f}")`
+                    },
+                    {
+                        id: 'py-2',
+                        title: 'Bài 2: Danh sách (List) & List Comprehension',
+                        duration: '15 phút',
+                        theory: `
+                            <p><strong>List</strong> là cấu trúc dữ liệu cho phép lưu trữ một tập hợp có thứ tự các phần tử và có thể thay đổi được.</p>
+                            <p><strong>List Comprehension</strong> là đặc trưng mạnh mẽ của Python giúp tạo ra một danh sách mới từ danh sách có sẵn chỉ trên một dòng lệnh ngắn gọn, dễ đọc và tốc độ xử lý nhanh hơn vòng lặp thông thường.</p>
+                        `,
+                        example: `diem_so = [6.5, 8.0, 9.5, 4.0, 7.5, 8.8]
+
+# Lọc ra các điểm đạt loại Giỏi (>= 8.0) bằng List Comprehension
+diem_gioi = [d for d in diem_so if d >= 8.0]
+
+print("Danh sách điểm giỏi:", diem_gioi) # Kết quả: [8.0, 9.5, 8.8]`
+                    },
+                    {
+                        id: 'py-3',
+                        title: 'Bài 3: Hàm (Function) & Tham số mặc định',
+                        duration: '14 phút',
+                        theory: `
+                            <p>Hàm giúp chia nhỏ chương trình thành các khối chức năng tái sử dụng được, định nghĩa bằng từ khóa <code>def</code>.</p>
+                            <p>Bạn có thể gán <strong>giá trị mặc định</strong> cho tham số để hàm vẫn hoạt động trơn tru ngay cả khi người gọi không truyền đủ đối số.</p>
+                        `,
+                        example: `def tinh_tien_hoc(so_gio, don_gia=50000, giam_gia=0.1):
+    tong = so_gio * don_gia
+    thanh_tien = tong * (1 - giam_gia)
+    return int(thanh_tien)
+
+print("Học phí sau ưu đãi:", tinh_tien_hoc(10), "VNĐ")`
+                    }
+                ]
+            },
+            {
+                id: 'english-comm',
+                title: 'Tiếng Anh giao tiếp Công sở & Công nghệ',
+                category: 'language',
+                categoryLabel: 'Ngoại ngữ',
+                level: 'Trung cấp',
+                color: 'from-amber-500 to-orange-600',
+                icon: 'languages',
+                description: 'Nâng cao phản xạ giao tiếp trong cuộc họp, viết email chuyên nghiệp và thảo luận công việc hàng ngày.',
+                lessons: [
+                    {
+                        id: 'en-1',
+                        title: 'Bài 1: Cấu trúc mở đầu & Trình bày ý kiến trong cuộc họp',
+                        duration: '12 phút',
+                        theory: `
+                            <p>Trong môi trường làm việc quốc tế, cách diễn đạt lịch sự và rõ ràng giúp ý tưởng của bạn được đón nhận tích cực hơn thay vì dùng những câu quá trực diện như <em>"I think..."</em> lặp đi lặp lại.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><strong>From my perspective, ...</strong> (Theo góc nhìn của tôi, ...)</li>
+                                <li><strong>Could we touch base on...?</strong> (Chúng ta có thể trao đổi nhanh về... được không?)</li>
+                                <li><strong>To wrap things up, ...</strong> (Để tổng kết lại vấn đề, ...)</li>
+                            </ul>
+                        `,
+                        example: `Mẫu câu thực tế trong buổi họp Stand-up:
+"Morning everyone! From my perspective, we are on track to finish the UI module today. Could we touch base on the API integration right after this call?"`
+                    },
+                    {
+                        id: 'en-2',
+                        title: 'Bài 2: Viết Email phản hồi & Nhờ hỗ trợ chuyên nghiệp',
+                        duration: '14 phút',
+                        theory: `
+                            <p>Một email công việc hiệu quả gồm 3 phần: <strong>Lời chào & Mục đích ngắn gọn</strong>, <strong>Nội dung chi tiết có gạch đầu dòng</strong>, và <strong>Lời kêu gọi hành động (Call to Action)</strong> rõ ràng.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><code>I am writing to follow up on...</code> (Tôi viết thư này để cập nhật tiến độ về...)</li>
+                                <li><code>Please find attached...</code> (Vui lòng xem tệp đính kèm...)</li>
+                                <li><code>I would appreciate it if you could...</code> (Tôi rất cảm kích nếu bạn có thể...)</li>
+                            </ul>
+                        `,
+                        example: `Subject: Follow-up on Project Timeline
+
+Hi Lan,
+I hope you're having a productive week. I am writing to follow up on the design review. I would appreciate it if you could share your feedback by Thursday afternoon.
+Best regards,
+Nam`
+                    },
+                    {
+                        id: 'en-3',
+                        title: 'Bài 3: Thành ngữ (Idioms) thông dụng nơi làm việc',
+                        duration: '10 phút',
+                        theory: `
+                            <p>Sử dụng các thành ngữ tự nhiên giúp cuộc trò chuyện với đồng nghiệp trở nên thân thiện và bản xứ hơn.</p>
+                            <ul class="list-disc pl-5 space-y-1.5">
+                                <li><strong>On the same page</strong>: Đồng quan điểm, hiểu rõ vấn đề giống nhau.</li>
+                                <li><strong>Think outside the box</strong>: Tư duy sáng tạo, đột phá khỏi lối mòn.</li>
+                                <li><strong>Call it a day</strong>: Kết thúc công việc trong ngày để nghỉ ngơi.</li>
+                            </ul>
+                        `,
+                        example: `A: "We've solved all the critical bugs for this sprint!"
+B: "Awesome! Let's make sure the whole team is on the same page, and then we can call it a day."`
+                    }
+                ]
+            },
+            {
+                id: 'math-logic',
+                title: 'Toán tư duy & Giải quyết vấn đề',
+                category: 'logic',
+                categoryLabel: 'Tư duy & Toán',
+                level: 'Mọi trình độ',
+                color: 'from-purple-500 to-pink-600',
+                icon: 'brain-circuit',
+                description: 'Rèn luyện tư duy logic, xác suất ứng dụng và phương pháp chia nhỏ bài toán phức tạp.',
+                lessons: [
+                    {
+                        id: 'math-1',
+                        title: 'Bài 1: Nguyên lý Chuồng Bồ Câu (Pigeonhole Principle)',
+                        duration: '11 phút',
+                        theory: `
+                            <p><strong>Nguyên lý Dirichlet (Chuồng bồ câu)</strong> phát biểu rằng: Nếu nhốt <em>n + 1</em> con chim bồ câu vào <em>n</em> chiếc chuồng, thì chắc chắn có ít nhất một chuồng chứa từ 2 con chim trở lên.</p>
+                            <p>Dù nghe rất hiển nhiên, nguyên lý này là công cụ cực kỳ sắc bén trong toán rời rạc, khoa học máy tính (nén dữ liệu, bảng băm) và suy luận logic.</p>
+                        `,
+                        example: `Bài toán: Trong một nhóm 13 người bất kỳ, chứng minh luôn có ít nhất 2 người sinh cùng tháng.
+Lời giải: Có 12 tháng trong năm (12 chuồng) và 13 người (13 chim bồ câu). Theo nguyên lý Dirichlet, chắc chắn có ít nhất 2 người rơi vào cùng một tháng sinh.`
+                    },
+                    {
+                        id: 'math-2',
+                        title: 'Bài 2: Tư duy Quy nạp & Tìm quy luật dãy số',
+                        duration: '14 phút',
+                        theory: `
+                            <p>Khi đối mặt với một bài toán lớn có kích thước <em>N</em>, thay vì giải ngay với <em>N = 100</em>, hãy thử giải với các trường hợp nhỏ nhất (<em>N = 1, 2, 3</em>) để quan sát quy luật tăng trưởng.</p>
+                            <p>Ví dụ kinh điển: Tổng của <em>n</em> số lẻ đầu tiên luôn bằng chính bình phương của <em>n</em> (<em>n²</em>).</p>
+                        `,
+                        example: `n = 1: 1 = 1²
+n = 2: 1 + 3 = 4 = 2²
+n = 3: 1 + 3 + 5 = 9 = 3²
+n = 4: 1 + 3 + 5 + 7 = 16 = 4²
+=> Tổng 50 số lẻ đầu tiên = 50² = 2500 (tính nhẩm trong 2 giây!)`
+                    },
+                    {
+                        id: 'math-3',
+                        title: 'Bài 3: Nghịch lý Monty Hall & Xác suất có điều kiện',
+                        duration: '16 phút',
+                        theory: `
+                            <p>Trực giác con người thường đánh giá sai xác suất khi có thêm thông tin mới xuất hiện. Trong trò chơi có 3 cánh cửa (1 có xe hơi, 2 có dê), sau khi bạn chọn 1 cửa, người dẫn chương trình mở 1 cửa có dê trong 2 cửa còn lại.</p>
+                            <p><strong>Quyết định tối ưu:</strong> Bạn luôn nên <strong>ĐỔI CỬA</strong>! Vì xác suất chọn đúng ngay từ đầu chỉ là 1/3, trong khi 2/3 xác suất còn lại dồn hết vào cánh cửa chưa mở kia.</p>
+                        `,
+                        example: `Phân tích 3 trường hợp (bạn chọn Cửa 1):
+1. Xe ở Cửa 1 (1/3) -> Đổi sang cửa kia = THUA.
+2. Xe ở Cửa 2 (1/3) -> MC mở Cửa 3 -> Đổi sang Cửa 2 = THẮNG.
+3. Xe ở Cửa 3 (1/3) -> MC mở Cửa 2 -> Đổi sang Cửa 3 = THẮNG.
+=> Tỷ lệ thắng khi đổi cửa lên tới 2/3 (66.7%)!`
+                    }
+                ]
+            }
+        ];
+
+        const FLASHCARDS_DATA = {
+            'web-dev': [
+                { id: 'fc-w1', tag: 'HTML5', front: 'Semantic HTML là gì?', back: 'Là việc sử dụng các thẻ HTML mang ý nghĩa mô tả rõ vai trò nội dung như <header>, <nav>, <main>, <article> giúp tối ưu SEO và khả năng truy cập.' },
+                { id: 'fc-w2', tag: 'CSS Flexbox', front: 'justify-content vs align-items', back: 'justify-content căn chỉnh phần tử theo trục chính (main axis - ngang), còn align-items căn chỉnh theo trục phụ (cross axis - dọc).' },
+                { id: 'fc-w3', tag: 'JavaScript', front: 'localStorage.setItem(key, value)', back: 'Lưu trữ dữ liệu vĩnh viễn trên trình duyệt người dùng dưới dạng cặp khóa-giá trị (chuỗi String), không bị mất khi tải lại trang.' },
+                { id: 'fc-w4', tag: 'DOM', front: 'event.preventDefault()', back: 'Ngăn chặn hành vi mặc định của trình duyệt (ví dụ: ngăn form tải lại trang khi nhấn nút Submit).' }
+            ],
+            'python-basic': [
+                { id: 'fc-p1', tag: 'Python Syntax', front: 'List Comprehension', back: 'Cú pháp rút gọn để tạo danh sách mới trên một dòng: [biểu_thức for mục in danh_sách if điều_kiện].' },
+                { id: 'fc-p2', tag: 'Kiểu dữ liệu', front: 'Tuple khác gì với List?', back: 'List dùng ngoặc vuông [] và có thể thay đổi phần tử (mutable), còn Tuple dùng ngoặc tròn () và bất biến (immutable).' },
+                { id: 'fc-p3', tag: 'Chuỗi', front: 'f-string trong Python', back: 'Đặt chữ f trước chuỗi (ví dụ f"Xin chào {name}") để nhúng trực tiếp biến hoặc biểu thức vào bên trong dấu ngoặc nhọn.' }
+            ],
+            'english-comm': [
+                { id: 'fc-e1', tag: 'Business Idiom', front: 'On the same page', back: 'Có chung nhận thức, đồng thuận và hiểu rõ tình hình giống nhau trong một nhóm làm việc.' },
+                { id: 'fc-e2', tag: 'Meeting Phrase', front: 'Touch base (with someone)', back: 'Liên lạc hoặc trao đổi nhanh với ai đó để cập nhật tình hình công việc.' },
+                { id: 'fc-e3', tag: 'Work Idiom', front: 'Call it a day', back: 'Quyết định dừng công việc đang làm trong ngày vì đã hoàn thành mục tiêu hoặc đã đến giờ nghỉ.' }
+            ],
+            'math-logic': [
+                { id: 'fc-m1', tag: 'Toán rời rạc', front: 'Nguyên lý Dirichlet (Chuồng bồ câu)', back: 'Nếu đặt n + 1 đối tượng vào n nhóm, luôn tồn tại ít nhất một nhóm chứa từ 2 đối tượng trở lên.' },
+                { id: 'fc-m2', tag: 'Xác suất', front: 'Bài toán Monty Hall', back: 'Khi có 3 lựa chọn và 1 lựa chọn sai bị loại bỏ, việc thay đổi lựa chọn ban đầu giúp tăng xác suất thắng từ 33.3% lên 66.7%.' },
+                { id: 'fc-m3', tag: 'Số học', front: 'Tổng n số lẻ đầu tiên', back: '1 + 3 + 5 + ... + (2n - 1) = n². Ví dụ: Tổng 10 số lẻ đầu tiên bằng 10² = 100.' }
+            ]
+        };
+
+        const QUIZZES_DATA = {
+            'web-dev': {
+                title: 'Trắc nghiệm: Lập trình Web cơ bản',
+                questions: [
+                    {
+                        q: 'Thẻ HTML5 nào phù hợp nhất để bao bọc thanh điều hướng (menu) chính của website?',
+                        options: ['<section>', '<nav>', '<aside>', '<div>'],
+                        answer: 1,
+                        explanation: 'Thẻ <nav> (Navigation) được thiết kế chuyên biệt để chứa các liên kết điều hướng chính của trang web.'
+                    },
+                    {
+                        q: 'Trong CSS Flexbox, thuộc tính nào dùng để căn giữa các phần tử con theo chiều ngang (mặc định)?',
+                        options: ['align-items: center;', 'text-align: middle;', 'justify-content: center;', 'flex-wrap: center;'],
+                        answer: 2,
+                        explanation: 'Khi flex-direction mặc định là row, trục chính là chiều ngang nên justify-content: center sẽ căn giữa theo chiều ngang.'
+                    },
+                    {
+                        q: 'Phương thức nào lưu trữ dữ liệu trên trình duyệt mà không bị xóa khi đóng tab?',
+                        options: ['sessionStorage.setItem()', 'localStorage.setItem()', 'console.log()', 'document.cookie.delete()'],
+                        answer: 1,
+                        explanation: 'localStorage lưu trữ dữ liệu lâu dài trên trình duyệt cho đến khi người dùng hoặc mã nguồn chủ động xóa.'
+                    },
+                    {
+                        q: 'Cú pháp nào chọn phần tử HTML có id="header" trong JavaScript?',
+                        options: ['document.querySelector(".header")', 'document.querySelector("#header")', 'document.getElementsByClass("header")', 'document.select("header")'],
+                        answer: 1,
+                        explanation: 'Dấu thăng (#) đại diện cho bộ chọn ID trong CSS và phương thức querySelector().'
+                    }
+                ]
+            },
+            'python-basic': {
+                title: 'Trắc nghiệm: Python cho người mới',
+                questions: [
+                    {
+                        q: 'Kết quả của đoạn mã Python: [x * 2 for x in [1, 2, 3]] là gì?',
+                        options: ['[1, 2, 3]', '[2, 4, 6]', '[1, 4, 9]', 'Lỗi cú pháp'],
+                        answer: 1,
+                        explanation: 'List Comprehension nhân đôi từng phần tử trong danh sách [1, 2, 3], tạo ra danh sách mới [2, 4, 6].'
+                    },
+                    {
+                        q: 'Từ khóa nào dùng để định nghĩa một hàm trong Python?',
+                        options: ['function', 'func', 'def', 'define'],
+                        answer: 2,
+                        explanation: 'Python sử dụng từ khóa "def" (viết tắt của define) để khai báo hàm.'
+                    },
+                    {
+                        q: 'Kiểu dữ liệu nào trong Python KHÔNG thể thay đổi giá trị sau khi khởi tạo (immutable)?',
+                        options: ['List', 'Dictionary', 'Set', 'Tuple'],
+                        answer: 3,
+                        explanation: 'Tuple là kiểu dữ liệu bất biến (immutable), không thể thêm, sửa hay xóa phần tử sau khi tạo.'
+                    }
+                ]
+            },
+            'english-comm': {
+                title: 'Trắc nghiệm: Tiếng Anh giao tiếp công sở',
+                questions: [
+                    {
+                        q: 'Thành ngữ "Let\'s make sure we are all on the same page" có nghĩa là gì?',
+                        options: ['Hãy mở cùng một trang sách', 'Hãy đảm bảo tất cả chúng ta đều hiểu và đồng thuận vấn đề', 'Hãy kết thúc cuộc họp ngay bây giờ', 'Hãy in tài liệu ra giấy'],
+                        answer: 1,
+                        explanation: '"On the same page" nghĩa bóng là mọi người trong nhóm đều nắm bắt thông tin giống nhau và đồng thuận.'
+                    },
+                    {
+                        q: 'Cụm từ nào lịch sự và tự nhiên nhất để nhờ đồng nghiệp phản hồi qua email?',
+                        options: ['Give me feedback now.', 'I would appreciate it if you could share your feedback.', 'You must reply this email.', 'Why haven\'t you replied?'],
+                        answer: 1,
+                        explanation: 'Cấu trúc "I would appreciate it if you could..." là mẫu câu chuẩn mực, lịch sự trong giao tiếp chuyên nghiệp.'
+                    }
+                ]
+            },
+            'math-logic': {
+                title: 'Trắc nghiệm: Toán tư duy & Logic',
+                questions: [
+                    {
+                        q: 'Tính nhanh tổng của 20 số tự nhiên lẻ đầu tiên (1 + 3 + 5 + ... + 39):',
+                        options: ['200', '380', '400', '420'],
+                        answer: 2,
+                        explanation: 'Tổng của n số lẻ đầu tiên luôn bằng n². Với n = 20, tổng bằng 20² = 400.'
+                    },
+                    {
+                        q: 'Trong một hộp có 5 đôi tất đen và 5 đôi tất trắng trộn lẫn. Cần lấy ra ít nhất bao nhiêu chiếc tất (không nhìn) để chắc chắn có 1 đôi cùng màu?',
+                        options: ['2 chiếc', '3 chiếc', '6 chiếc', '11 chiếc'],
+                        answer: 1,
+                        explanation: 'Theo nguyên lý Dirichlet: Chỉ có 2 màu tất (2 chuồng). Lấy 3 chiếc tất thì chắc chắn có ít nhất 2 chiếc cùng màu!'
+                    }
+                ]
+            }
+        };
+
+        // 2. QUẢN LÝ TRẠNG THÁI (STATE) & LOCALSTORAGE
+        const STORAGE_KEY = 'eduflow_state_v1';
+        let appState = {
+            theme: 'light',
+            streak: 7,
+            pomodoroCount: 4,
+            completedLessons: ['web-1', 'py-1'], // Mặc định hoàn thành sẵn 2 bài mẫu để người dùng thấy tiến độ trực quan
+            lastCourseId: 'web-dev',
+            lastLessonId: 'web-2',
+            notes: {
+                'web-1': 'Ghi nhớ: Luôn dùng <main> cho nội dung chính của trang để tốt cho SEO.'
+            },
+            masteredFlashcards: ['fc-w1'],
+            quizScores: [85, 90]
+        };
+
+        // Load saved state safely
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    appState = { ...appState, ...parsed };
+                }
+            } catch (e) {
+                console.warn('Không thể đọc localStorage:', e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.warn('Không thể lưu localStorage:', e);
+            }
+        }
+
+        // Toast Notification Helper (Không dùng alert)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = type === 'success' 
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-800 dark:border-slate-200' 
+                : 'bg-primary-600 text-white border-primary-500';
+            
+            const iconName = type === 'success' ? 'check-circle-2' : 'bell';
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-lg border text-xs sm:text-sm font-medium transition-all duration-300 translate-y-2 opacity-0 ${colors}`;
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 shrink-0 text-emerald-400 dark:text-emerald-600"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 3. CHẾ ĐỘ SÁNG / TỐI (LIGHT / DARK MODE)
+        function applyTheme() {
+            const html = document.documentElement;
+            if (appState.theme === 'dark') {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+        }
+
+        function toggleTheme() {
+            appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+            saveState();
+        }
+
+        // 4. ĐIỀU HƯỚNG TAB & MOBILE SIDEBAR
+        function switchTab(tabName) {
+            // Update active nav styling
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const isTarget = btn.dataset.nav === tabName;
+                if (isTarget) {
+                    btn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300';
+                } else {
+                    btn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all';
+                }
+            });
+
+            // Hide all views, show selected view
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            const targetView = document.getElementById(`view-${tabName}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
+
+            // Refresh view data
+            if (tabName === 'dashboard') renderDashboard();
+            if (tabName === 'courses') renderCoursesCatalog();
+            if (tabName === 'flashcards') renderFlashcard();
+            if (tabName === 'quiz') renderQuizQuestion();
+
+            closeMobileMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarBackdrop.classList.remove('hidden');
+        });
+
+        function closeMobileMenu() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        }
+
+        // 5. DASHBOARD RENDERING
+        function renderDashboard() {
+            const totalLessons = COURSES_DATA.reduce((sum, c) => sum + c.lessons.length, 0);
+            const completedCount = appState.completedLessons.length;
+            const percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+            document.getElementById('stat-streak').textContent = `${appState.streak} ngày`;
+            document.getElementById('mobile-streak').textContent = appState.streak;
+            document.getElementById('stat-completed').textContent = `${completedCount} / ${totalLessons}`;
+            document.getElementById('stat-percent').textContent = `(${percent}%)`;
+            document.getElementById('stat-pomodoros').textContent = `${appState.pomodoroCount} phiên`;
+
+            // Calculate average quiz score
+            const avgQuiz = appState.quizScores.length > 0
+                ? Math.round(appState.quizScores.reduce((a, b) => a + b, 0) / appState.quizScores.length)
+                : 0;
+            document.getElementById('stat-quiz-score').textContent = `${avgQuiz}%`;
+
+            // XP calculation
+            const xp = 1000 + (completedCount * 120) + (appState.pomodoroCount * 30);
+            const level = Math.floor(xp / 300);
+            document.getElementById('sidebar-xp').textContent = `${xp.toLocaleString()} XP • Cấp ${level}`;
+
+            // Render active courses cards in dashboard
+            const dashList = document.getElementById('dashboard-course-list');
+            dashList.innerHTML = COURSES_DATA.map(course => {
+                const doneInCourse = course.lessons.filter(l => appState.completedLessons.includes(l.id)).length;
+                const coursePct = Math.round((doneInCourse / course.lessons.length) * 100);
+
+                return `
+                    <div onclick="openCourse('${course.id}')" class="group cursor-pointer rounded-2xl p-4 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-700/70 hover:border-primary-400 dark:hover:border-primary-600 transition-all shadow-2xs">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${course.color} text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2.5 py-0.5 rounded-full">
+                                ${coursePct}%
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-1 mb-1">
+                            ${course.title}
+                        </h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">${doneInCourse}/${course.lessons.length} bài hoàn thành</p>
+                        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary-600 rounded-full transition-all duration-300" style="width: ${coursePct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function continueLastLesson() {
+            switchTab('courses');
+            openCourse(appState.lastCourseId || 'web-dev', appState.lastLessonId);
+        }
+
+        // 6. KHÓA HỌC & TRÌNH ĐỌC BÀI HỌC (LESSON READER + NOTES)
+        let currentFilter = 'all';
+        let activeCourse = null;
+        let activeLesson = null;
+
+        function filterCourses(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.className = 'filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-primary-600 text-white transition';
+                } else {
+                    btn.className = 'filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition';
+                }
+            });
+            renderCoursesCatalog();
+        }
+
+        function renderCoursesCatalog() {
+            document.getElementById('courses-catalog-view').classList.remove('hidden');
+            document.getElementById('lesson-reader-view').classList.add('hidden');
+
+            const filtered = currentFilter === 'all' 
+                ? COURSES_DATA 
+                : COURSES_DATA.filter(c => c.category === currentFilter);
+
+            const grid = document.getElementById('courses-grid');
+            grid.innerHTML = filtered.map(course => {
+                const doneCount = course.lessons.filter(l => appState.completedLessons.includes(l.id)).length;
+                const pct = Math.round((doneCount / course.lessons.length) * 100);
+
+                return `
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                    ${course.categoryLabel} • ${course.level}
+                                </span>
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br ${course.color} text-white flex items-center justify-center shadow-sm">
+                                    <i data-lucide="${course.icon}" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">${course.title}</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5">${course.description}</p>
+                        </div>
+
+                        <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <div>
+                                <div class="flex justify-between text-xs font-medium mb-1.5">
+                                    <span class="text-slate-500 dark:text-slate-400">Hoàn thành ${doneCount}/${course.lessons.length} bài</span>
+                                    <span class="font-bold text-primary-600 dark:text-primary-400">${pct}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary-600 rounded-full" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+
+                            <button onclick="openCourse('${course.id}')" class="w-full py-2.5 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-xs">
+                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                                <span>${doneCount > 0 ? 'Tiếp tục học' : 'Bắt đầu khóa học'}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function openCourse(courseId, specificLessonId = null) {
+            const course = COURSES_DATA.find(c => c.id === courseId);
+            if (!course) return;
+
+            activeCourse = course;
+            document.getElementById('courses-catalog-view').classList.add('hidden');
+            document.getElementById('lesson-reader-view').classList.remove('hidden');
+
+            document.getElementById('reader-course-badge').textContent = course.categoryLabel;
+            document.getElementById('reader-course-title').textContent = course.title;
+            document.getElementById('reader-course-desc').textContent = course.description;
+
+            // Choose lesson: specific -> first incomplete -> first lesson
+            let targetLesson = null;
+            if (specificLessonId) {
+                targetLesson = course.lessons.find(l => l.id === specificLessonId);
+            }
+            if (!targetLesson) {
+                targetLesson = course.lessons.find(l => !appState.completedLessons.includes(l.id)) || course.lessons[0];
+            }
+
+            selectLesson(targetLesson.id);
+        }
+
+        function closeLessonReader() {
+            activeCourse = null;
+            activeLesson = null;
+            renderCoursesCatalog();
+        }
+
+        function selectLesson(lessonId) {
+            if (!activeCourse) return;
+            const lessonIndex = activeCourse.lessons.findIndex(l => l.id === lessonId);
+            if (lessonIndex === -1) return;
+
+            activeLesson = activeCourse.lessons[lessonIndex];
+            appState.lastCourseId = activeCourse.id;
+            appState.lastLessonId = activeLesson.id;
+            saveState();
+
+            // Update Course Progress UI
+            const doneCount = activeCourse.lessons.filter(l => appState.completedLessons.includes(l.id)).length;
+            const pct = Math.round((doneCount / activeCourse.lessons.length) * 100);
+            document.getElementById('reader-course-progress-text').textContent = `${pct}%`;
+            document.getElementById('reader-course-progress-bar').style.width = `${pct}%`;
+
+            // Render Sidebar Lesson List
+            const listEl = document.getElementById('reader-lesson-list');
+            listEl.innerHTML = activeCourse.lessons.map((l, idx) => {
+                const isDone = appState.completedLessons.includes(l.id);
+                const isCurrent = l.id === activeLesson.id;
+
+                return `
+                    <button onclick="selectLesson('${l.id}')" class="w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 ${
+                        isCurrent 
+                        ? 'bg-primary-50/90 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-100' 
+                        : 'bg-slate-50/60 dark:bg-slate-800/40 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }">
+                        <div class="mt-0.5 shrink-0">
+                            ${isDone 
+                                ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>' 
+                                : `<span class="w-4 h-4 rounded-full border border-slate-400 text-[10px] flex items-center justify-center font-bold">${idx + 1}</span>`
+                            }
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-semibold leading-snug line-clamp-2">${l.title}</p>
+                            <span class="text-[11px] text-slate-400 mt-0.5 block">${l.duration}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // Render Lesson Content
+            document.getElementById('lesson-duration-badge').innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5"></i> ${activeLesson.duration} đọc`;
+            document.getElementById('lesson-title').textContent = activeLesson.title;
+            document.getElementById('lesson-theory-content').innerHTML = activeLesson.theory;
+            document.getElementById('lesson-example-box').textContent = activeLesson.example;
+
+            // Update Complete Button State
+            const isLessonDone = appState.completedLessons.includes(activeLesson.id);
+            const completeBtn = document.getElementById('mark-complete-btn');
+            if (isLessonDone) {
+                completeBtn.className = 'inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 transition';
+                completeBtn.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Đã hoàn thành`;
+            } else {
+                completeBtn.className = 'inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-200 transition';
+                completeBtn.innerHTML = `<i data-lucide="circle" class="w-4 h-4"></i> Đánh dấu hoàn thành`;
+            }
+
+            // Prev / Next button states
+            document.getElementById('prev-lesson-btn').disabled = lessonIndex === 0;
+            document.getElementById('next-lesson-btn').disabled = lessonIndex === activeCourse.lessons.length - 1;
+
+            // Load Personal Note from localStorage
+            const noteInput = document.getElementById('lesson-note-input');
+            noteInput.value = appState.notes[activeLesson.id] || '';
+
+            lucide.createIcons();
+        }
+
+        function toggleLessonComplete() {
+            if (!activeLesson) return;
+            const idx = appState.completedLessons.indexOf(activeLesson.id);
+            if (idx === -1) {
+                appState.completedLessons.push(activeLesson.id);
+                showToast('Chúc mừng! Bạn đã hoàn thành bài học (+120 XP)');
+            } else {
+                appState.completedLessons.splice(idx, 1);
+                showToast('Đã bỏ đánh dấu hoàn thành bài học');
+            }
+            saveState();
+            selectLesson(activeLesson.id);
+        }
+
+        function navigateLesson(direction) {
+            if (!activeCourse || !activeLesson) return;
+            const currentIdx = activeCourse.lessons.findIndex(l => l.id === activeLesson.id);
+            const nextIdx = currentIdx + direction;
+            if (nextIdx >= 0 && nextIdx < activeCourse.lessons.length) {
+                selectLesson(activeCourse.lessons[nextIdx].id);
+            }
+        }
+
+        // Auto-save & Manual save for Personal Notes
+        const noteTextarea = document.getElementById('lesson-note-input');
+        let noteSaveTimeout = null;
+        noteTextarea.addEventListener('input', () => {
+            clearTimeout(noteSaveTimeout);
+            noteSaveTimeout = setTimeout(() => saveCurrentNote(false), 500);
+        });
+
+        function saveCurrentNote(showNotification = false) {
+            if (!activeLesson) return;
+            appState.notes[activeLesson.id] = noteTextarea.value;
+            saveState();
+
+            const statusEl = document.getElementById('note-save-status');
+            statusEl.classList.remove('opacity-0');
+            setTimeout(() => statusEl.classList.add('opacity-0'), 2000);
+
+            if (showNotification) {
+                showToast('Đã lưu ghi chú cá nhân vào trình duyệt!');
+            }
+        }
+
+        function copyExampleCode() {
+            const text = document.getElementById('lesson-example-box').textContent;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Đã sao chép ví dụ minh họa!');
+        }
+
+        function startLessonQuiz() {
+            if (!activeCourse) return;
+            const quizSelect = document.getElementById('quiz-topic-select');
+            quizSelect.value = activeCourse.id;
+            switchTab('quiz');
+            loadSelectedQuiz();
+        }
+
+        // 7. THẺ GHI NHỚ (FLASHCARDS)
+        let currentDeckId = 'web-dev';
+        let currentCardIndex = 0;
+        let isCardFlipped = false;
+
+        function initSelectors() {
+            const fcSelect = document.getElementById('flashcard-deck-select');
+            const qzSelect = document.getElementById('quiz-topic-select');
+
+            const optionsHtml = COURSES_DATA.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+            fcSelect.innerHTML = optionsHtml;
+            qzSelect.innerHTML = optionsHtml;
+        }
+
+        function changeFlashcardDeck() {
+            currentDeckId = document.getElementById('flashcard-deck-select').value;
+            currentCardIndex = 0;
+            isCardFlipped = false;
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            renderFlashcard();
+        }
+
+        function renderFlashcard() {
+            const deck = FLASHCARDS_DATA[currentDeckId] || [];
+            if (deck.length === 0) return;
+
+            const card = deck[currentCardIndex];
+            document.getElementById('fc-counter').textContent = `Thẻ ${currentCardIndex + 1} / ${deck.length}`;
+            
+            const masteredInDeck = deck.filter(c => appState.masteredFlashcards.includes(c.id)).length;
+            document.getElementById('fc-mastered-count').textContent = `Đã thuộc: ${masteredInDeck} / ${deck.length} thẻ`;
+
+            document.getElementById('fc-tag').textContent = card.tag;
+            document.getElementById('fc-front-text').textContent = card.front;
+            document.getElementById('fc-back-text').textContent = card.back;
+
+            const isMastered = appState.masteredFlashcards.includes(card.id);
+            const masterBtn = document.getElementById('fc-master-btn');
+            if (isMastered) {
+                masterBtn.className = 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-xs transition';
+                masterBtn.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i><span>Đã thuộc thẻ này</span>`;
+            } else {
+                masterBtn.className = 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 text-sm font-semibold hover:bg-emerald-100 transition';
+                masterBtn.innerHTML = `<i data-lucide="circle" class="w-4 h-4"></i><span>Đánh dấu đã thuộc</span>`;
+            }
+
+            lucide.createIcons();
+        }
+
+        function flipFlashcard() {
+            isCardFlipped = !isCardFlipped;
+            const inner = document.getElementById('flashcard-inner');
+            if (isCardFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextFlashcard() {
+            const deck = FLASHCARDS_DATA[currentDeckId] || [];
+            isCardFlipped = false;
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            currentCardIndex = (currentCardIndex + 1) % deck.length;
+            setTimeout(renderFlashcard, 120);
+        }
+
+        function prevFlashcard() {
+            const deck = FLASHCARDS_DATA[currentDeckId] || [];
+            isCardFlipped = false;
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            currentCardIndex = (currentCardIndex - 1 + deck.length) % deck.length;
+            setTimeout(renderFlashcard, 120);
+        }
+
+        function toggleMasterFlashcard() {
+            const deck = FLASHCARDS_DATA[currentDeckId] || [];
+            const card = deck[currentCardIndex];
+            if (!card) return;
+
+            const idx = appState.masteredFlashcards.indexOf(card.id);
+            if (idx === -1) {
+                appState.masteredFlashcards.push(card.id);
+                showToast('Tuyệt vời! Đã đánh dấu thuộc thẻ ghi nhớ.');
+            } else {
+                appState.masteredFlashcards.splice(idx, 1);
+            }
+            saveState();
+            renderFlashcard();
+        }
+
+        // 8. HỆ THỐNG TRẮC NGHIỆM (QUIZ)
+        let currentQuizTopic = 'web-dev';
+        let quizIndex = 0;
+        let quizScore = 0;
+        let hasAnsweredCurrent = false;
+
+        function loadSelectedQuiz() {
+            currentQuizTopic = document.getElementById('quiz-topic-select').value;
+            quizIndex = 0;
+            quizScore = 0;
+            hasAnsweredCurrent = false;
+
+            document.getElementById('quiz-active-box').classList.remove('hidden');
+            document.getElementById('quiz-result-box').classList.add('hidden');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const quizObj = QUIZZES_DATA[currentQuizTopic];
+            if (!quizObj) return;
+
+            const questions = quizObj.questions;
+            const currentQ = questions[quizIndex];
+            hasAnsweredCurrent = false;
+
+            document.getElementById('quiz-question-counter').textContent = `Câu hỏi ${quizIndex + 1} / ${questions.length}`;
+            document.getElementById('quiz-live-score').textContent = `Điểm hiện tại: ${quizScore}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((quizIndex + 1) / questions.length) * 100}%`;
+            document.getElementById('quiz-question-text').textContent = currentQ.q;
+
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const letters = ['A', 'B', 'C', 'D'];
+            const optionsList = document.getElementById('quiz-options-list');
+            optionsList.innerHTML = currentQ.options.map((optText, idx) => `
+                <button onclick="submitQuizAnswer(${idx})" data-opt-idx="${idx}" class="quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-primary-400 dark:hover:border-primary-600 bg-slate-50/50 dark:bg-slate-800/40 transition-all flex items-center gap-3.5 group">
+                    <span class="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-600 transition">
+                        ${letters[idx]}
+                    </span>
+                    <span class="text-sm font-medium text-slate-800 dark:text-slate-100 flex-1">${optText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                </button>
+            `).join('');
+        }
+
+        function submitQuizAnswer(selectedIdx) {
+            if (hasAnsweredCurrent) return;
+            hasAnsweredCurrent = true;
+
+            const quizObj = QUIZZES_DATA[currentQuizTopic];
+            const currentQ = quizObj.questions[quizIndex];
+            const isCorrect = selectedIdx === currentQ.answer;
+
+            if (isCorrect) {
+                quizScore++;
+                document.getElementById('quiz-live-score').textContent = `Điểm hiện tại: ${quizScore}`;
+            }
+
+            // Style options
+            document.querySelectorAll('.quiz-opt-btn').forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === currentQ.answer) {
+                    btn.className = 'quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 flex items-center gap-3.5';
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.className = 'quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/50 flex items-center gap-3.5';
+                } else {
+                    btn.className = 'quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 opacity-50 flex items-center gap-3.5';
+                }
+            });
+
+            // Show Explanation
+            const expBox = document.getElementById('quiz-explanation-box');
+            const expTitle = document.getElementById('quiz-exp-title');
+            const expText = document.getElementById('quiz-exp-text');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                expBox.className = 'rounded-2xl p-4 text-sm border bg-emerald-50/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200';
+                expTitle.textContent = 'Chính xác! 🎉';
+            } else {
+                expBox.className = 'rounded-2xl p-4 text-sm border bg-rose-50/80 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200';
+                expTitle.textContent = 'Chưa chính xác!';
+            }
+            expText.textContent = currentQ.explanation;
+
+            const nextBtn = document.getElementById('quiz-next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.querySelector('span').textContent = quizIndex === quizObj.questions.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo';
+            lucide.createIcons();
+        }
+
+        function nextQuizQuestion() {
+            const quizObj = QUIZZES_DATA[currentQuizTopic];
+            if (quizIndex < quizObj.questions.length - 1) {
+                quizIndex++;
+                renderQuizQuestion();
+            } else {
+                // Finish Quiz
+                document.getElementById('quiz-active-box').classList.add('hidden');
+                document.getElementById('quiz-result-box').classList.remove('hidden');
+
+                const total = quizObj.questions.length;
+                const percent = Math.round((quizScore / total) * 100);
+
+                document.getElementById('quiz-final-fraction').textContent = `${quizScore} / ${total}`;
+                document.getElementById('quiz-final-percent').textContent = `${percent}%`;
+                document.getElementById('quiz-result-subtitle').textContent = percent >= 80 
+                    ? 'Xuất sắc! Bạn đã nắm rất vững kiến thức của chủ đề này.' 
+                    : 'Cố gắng lên! Hãy xem lại phần lý thuyết và thử lại để đạt điểm tối đa nhé.';
+
+                appState.quizScores.push(percent);
+                saveState();
+                lucide.createIcons();
+            }
+        }
+
+        // 9. ĐỒNG HỒ POMODORO TẬP TRUNG (25p HỌC / 5p NGHỈ)
+        let pomoMode = 'focus'; // 'focus' | 'break'
+        let pomoSecondsLeft = 25 * 60;
+        let pomoInterval = null;
+        let isPomoRunning = false;
+
+        function updatePomodoroDisplay() {
+            const mins = Math.floor(pomoSecondsLeft / 60);
+            const secs = pomoSecondsLeft % 60;
+            document.getElementById('pomo-display').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function setPomodoroMode(mode) {
+            pausePomodoro();
+            pomoMode = mode;
+            const badge = document.getElementById('pomo-mode-badge');
+            const btnFocus = document.getElementById('pomo-btn-focus');
+            const btnBreak = document.getElementById('pomo-btn-break');
+            const statusText = document.getElementById('pomo-status-text');
+
+            if (mode === 'focus') {
+                pomoSecondsLeft = 25 * 60;
+                badge.textContent = 'Học bài';
+                badge.className = 'px-2 py-0.5 text-[11px] font-semibold rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
+                btnFocus.className = 'py-1 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition';
+                btnBreak.className = 'py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+                statusText.textContent = 'Sẵn sàng phiên tập trung 25p';
+            } else {
+                pomoSecondsLeft = 5 * 60;
+                badge.textContent = 'Nghỉ ngơi';
+                badge.className = 'px-2 py-0.5 text-[11px] font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+                btnBreak.className = 'py-1 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition';
+                btnFocus.className = 'py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+                statusText.textContent = 'Thư giãn mắt & hít thở sâu 5p';
+            }
+            updatePomodoroDisplay();
+        }
+
+        function togglePomodoro() {
+            if (isPomoRunning) {
+                pausePomodoro();
+            } else {
+                startPomodoro();
+            }
+        }
+
+        function startPomodoro() {
+            if (isPomoRunning) return;
+            isPomoRunning = true;
+
+            const toggleBtn = document.getElementById('pomo-toggle-btn');
+            const toggleText = document.getElementById('pomo-toggle-text');
+            const statusText = document.getElementById('pomo-status-text');
+
+            toggleBtn.classList.replace('bg-primary-600', 'bg-amber-600');
+            toggleBtn.classList.replace('hover:bg-primary-700', 'hover:bg-amber-700');
+            toggleText.textContent = 'Tạm dừng';
+            statusText.textContent = pomoMode === 'focus' ? 'Đang tập trung cao độ...' : 'Đang trong giờ nghỉ ngắn...';
+
+            pomoInterval = setInterval(() => {
+                if (pomoSecondsLeft > 0) {
+                    pomoSecondsLeft--;
+                    updatePomodoroDisplay();
+                } else {
+                    pausePomodoro();
+                    if (pomoMode === 'focus') {
+                        appState.pomodoroCount++;
+                        saveState();
+                        renderDashboard();
+                        showToast('Hoàn thành 25 phút tập trung! Hãy nghỉ ngơi 5 phút nhé.');
+                        setPomodoroMode('break');
+                    } else {
+                        showToast('Hết giờ nghỉ! Sẵn sàng cho phiên học tiếp theo.');
+                        setPomodoroMode('focus');
+                    }
+                }
+            }, 1000);
+        }
+
+        function pausePomodoro() {
+            isPomoRunning = false;
+            clearInterval(pomoInterval);
+            const toggleBtn = document.getElementById('pomo-toggle-btn');
+            const toggleText = document.getElementById('pomo-toggle-text');
+            toggleBtn.classList.replace('bg-amber-600', 'bg-primary-600');
+            toggleBtn.classList.replace('hover:bg-amber-700', 'hover:bg-primary-700');
+            toggleText.textContent = 'Bắt đầu';
+        }
+
+        function resetPomodoro() {
+            setPomodoroMode(pomoMode);
+        }
+
+        // 10. KHỞI TẠO ỨNG DỤNG KHI TẢI TRANG
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            applyTheme();
+            initSelectors();
+            renderDashboard();
+            updatePomodoroDisplay();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
